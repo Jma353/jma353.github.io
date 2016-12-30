@@ -4,8 +4,11 @@ title: About
 permalink: /about/
 ---
 
-Hi!  Thanks for visiting my site 
+Hi, I'm Joe Antonakakis.  I am a Junior at Cornell University studying Computer Science and minoring in Operations Research and Information Engineering.  
+
+My areas of interest include database systems, functional programming, and full-stack mobile and web development.  
+
 
 ### Contact me
 
-[jma353@cornell.edu](mailto:jma353@cornell.edu)
+If you'd like to contact me, reach out to me on various forms of social media, or send me an [email](mailto:jma353@cornell.edu)
