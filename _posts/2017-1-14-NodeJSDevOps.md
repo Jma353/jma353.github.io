@@ -68,7 +68,7 @@ Following this, we must create our database utilizing the PostgreSQL CLI.  Run t
 {% highlight bash %}
 psql
 CREATE DATABASE sample_database;
-\quit
+\q
 {% endhighlight %}
 
 Now, we must configure the `"development"` JSON of the `config.json` file to be the following:
