@@ -5,6 +5,12 @@ title: Node.js DevOps
 
 The following post / documentation outlines development operations for setting up an organized, MVC-driven [`NodeJS`](https://nodejs.org/en/) + [`Express`](http://expressjs.com/) backend.   
 
+This guide makes the following assumptions:
+
+* You are familiar with `JavaScript`
+* You have a high-level understanding of `SQL`
+* You havea a high-level understanding of `REST` API development
+
 # Creation
 
 Run the following command-line arguments (replace install with update if you already have these packages) to establish the project:
