@@ -112,7 +112,7 @@ Once you have `Postgres` setup and have your `$PATH` configured accordingly, run
 # Enter postgres command line interface
 $ psql
 # Create your database
-CREATE DATABASE my_apps_db;
+CREATE DATABASE my_app_db;
 # Quit out
 \q
 {% endhighlight bash %}
@@ -150,4 +150,87 @@ if __name__ == "__main__":
 
 In the above, `app` refers to the module we created above in the **File Organization** section.  `db` refers to our reference to the database connection that we have yet to define in the `app` module.  
 
-TODO: More to come 
+This script can be used in the following way to migrate your database, on changing your models:
+
+{% highlight bash %}
+# Initialize migrations
+python manage.py db init
+# Create a migration
+python manage.py db migrate
+# Apply it to the DB
+python manage.py db upgrade
+{% endhighlight %}
+
+## Configuration Setup
+
+Now that we have setup our database and have handled our `manage.py` script, we can create our `config.py` script, which involves the database and various other configuration information specific to `Flask`.  This file will be used in our initialization of the `Flask` app in the `app` module in the near future.  
+
+An example of a `config.py` file looks like this:
+
+{% highlight python %}
+import os
+basedir = os.path.abspath(os.path.dirname(__file__))
+
+# Different environments for the app to run in
+
+class Config(object):
+  DEBUG = False
+  CSRF_ENABLED = True
+  CSRF_SESSION_KEY = "secret"
+  SECRET_KEY = "not_this"
+  SQLALCHEMY_DATABASE_URI = os.environ['DATABASE_URL']
+
+class ProductionConfig(Config):
+  DEBUG = False
+
+class StagingConfig(Config):
+  DEVELOPMENT = True
+  DEBUG = True
+
+class DevelopmentConfig(Config):
+  DEVELOPMENT = True
+  DEBUG = True
+
+class TestingConfig(Config):
+  TESTING = True
+{% endhighlight %}
+
+The above defines several classes used to instantiate configuration objects in the creation of a `Flask` app.  Let's go through some of the variables:
+
+* `DEBUG` indicates whether or not debug stack traces will be logged by the server.
+* `CSRF_ENABLED`, `CSRF_SESSION_KEY`, and `SECRET_KEY` all relate to `Cross-Site-Request-Forgery`, which you can read more about [here](https://goo.gl/qkGU9).  
+* `SQLALCHEMY_DATABASE_URI` refers to the database URL (a server running your database).  In the above example, I refer to an environment variable `'DATABASE_URL'`.  I will be discussing environment variables in the next section, so stay tuned.
+
+## Environment Variables
+
+Environment variables allow one to specify credentials like a sensitive database URL, API keys, secret keys, etc.  These variables can be manually `export-ed` in the shell that you are running your server in, but that is a clunky approach.  The tool [`autoenv`](https://github.com/kennethreitz/autoenv) solves this problem.  
+
+`autoenv` allows for environment variable loading on `cd`-ing into the base directory of the project. Follow the following command line arguments to install `autoenv`:
+
+{% highlight bash %}
+# Install the package from pip
+pip install autoenv
+# Override cd by adding this to your .?rc file (? = bash, zsh, fish, etc), I'll use
+echo "source `which activate`" >> ~/.?rc
+# Reload your shell
+source ~/.?rc
+# Make a .env file to hold variables
+touch .env
+{% endhighlight %}
+
+As mentioned in the above code, your `.env` file will be where you hold variables, and will look something like this:
+
+{% highlight bash %}
+# Set the environment type of the app (see config.py)
+export APP_SETTINGS="config.DevelopmentConfig"
+# Set the DB url to a local database for development
+export DATABASE_URL="postgresql://localhost/my_app_db"
+{% endhighlight %}
+
+As you can see above in the example, I reference a specific configuration class (`DevelopmentConfig`), meaning I plan on working in my development environment.  I also have my database URL.  
+
+**NOTE:**  Be sure to `git-ignore` your `.env` file.  
+
+## Flask App Setup
+
+TODO: Explain how to instantiate `Flask` app + run.  
