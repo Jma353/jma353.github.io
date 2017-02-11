@@ -6,7 +6,7 @@ permalink: /about/
 
 Hi, I'm Joe Antonakakis.  I am a Junior at Cornell University studying Computer Science and minoring in Operations Research and Information Engineering.  
 
-My areas of interest include database systems, functional programming, and full-stack mobile and web development.  
+My areas of interest include database systems, software engineering, full-stack mobile and web development, and functional programming.  
 
 ### Contact me
 
