@@ -59,7 +59,7 @@ The command `pip freeze` actually lists the dependencies encapsulated by the vir
 pip install -r requirements.txt
 {% endhighlight %}
 
-**NOTE:**  Be sure to `git-ignore` your virtual environment.  
+**NOTE:**  Be sure to `gitignore` your virtual environment.  
 
 ## Install Flask
 
@@ -83,7 +83,7 @@ manage.py # holds functionality for migrating your database (changing its schema
 run.py    # runs the app on a port
 {% endhighlight %}
 
-The entire functional backend of a `Flask` app is housed in a parent module called `app`.  You can create this by creating a directory `app` and populating it with an `__init__.py` file.  Then, inside that `app` directory, you can create modules that describe the resources of your app.  These modules should be as de-coupled and reusable as possible.  For example, let's say I need a bunch of user authentication logic with the `Google Sign-In` described by a couple of endpoints and helper functions.  These might be useful in another `Flask` app and can be comfortably separated from other functionality.  As a result, I would make a module called `gauth` inside my app directory.  Each module (including `app`) should also have a `templates` directory if you plan on adding any `HTML` views to your app.   
+The entire functional backend of a `Flask` app is housed in a parent module called `app`.  You can create this by creating a directory `app` and populating it with an `__init__.py` file.  Then, inside that `app` directory, you can create modules that describe the resources of your app.  These modules should be as de-coupled and reusable as possible.  For example, let's say I need a bunch of user authentication logic described by a couple of endpoints and helper functions.  These might be useful in another `Flask` app and can be comfortably separated from other functionality.  As a result, I would make a module called `accounts` inside my app directory.  Each module (including `app`) should also have a `templates` directory if you plan on adding any `HTML` views to your app.   
 
 In general, your filesystem should resemble something like this:
 
@@ -92,7 +92,7 @@ In general, your filesystem should resemble something like this:
 ├── README.md
 ├── app
 │   ├── __init__.py
-│   ├── gauth
+│   ├── accounts
 │   │   └── __init__.py
 │   └── templates
 ├── config.py
@@ -228,7 +228,7 @@ export DATABASE_URL="postgresql://localhost/my_app_db"
 
 As you can see above in the example, I reference a specific configuration class (`DevelopmentConfig`), meaning I plan on working in my development environment.  I also have my database URL.  
 
-**NOTE:**  Be sure to `git-ignore` your `.env` file.  
+**NOTE:**  Be sure to `gitignore` your `.env` file.  
 
 ## Flask App Setup
 
@@ -312,4 +312,42 @@ python run.py
 
 Your server is now running!
 
-**NOTE:** If you get issues regarding `APP_SETTINGS` or `DATABASE_URL`, you should ensure your `.env` is setup properly, and you should `cd` out of and back into your project root.  
+**NOTE:** If you get issues regarding `APP_SETTINGS` or `DATABASE_URL`, you should ensure your `.env` is setup properly, and you should `cd` out of and back into your project root.
+
+## That's it, for now...
+
+This marks the end of project configuration for a well-constructed `Flask` app following `MVC`.  However, for additional development-related advice regarding project setup, keep reading.  
+
+# Accounts Blueprint
+
+Now we will be diving into writing `Models` and `Controllers` for an `accounts` blueprint that will serve as reusable `users-sessions` module that can be added to any application desiring a sign-up system.  
+
+We must create our module within `app`, such that it contains the following structure:
+
+{% highlight bash %}
+.
+├── __init__.py
+├── controllers
+│   ├── __init__.py
+│   ├── sessions_controller.py
+│   └── users_controller.py
+└── models
+    ├── __init__.py
+    ├── session.py
+    └── user.py
+{% endhighlight %}
+
+Let's start with `./app/accounts/__init__.py`.  This file contains a couple of lines of information specifying the `Flask Blueprint` information of this module, as well import `controllers`:
+
+{% highlight python %}
+from flask import Blueprint
+
+# Define a Blueprint for this module (mchat)
+accounts = Blueprint('accounts', __name__, url_prefix='/accounts')
+
+# Import all controllers
+from controllers.users_controller import *
+from controllers.sessions_controller import *
+{% endhighlight %}
+
+These controller imports will not cause any runtime failures so long as you create the initial file structure specified above in advance.  
