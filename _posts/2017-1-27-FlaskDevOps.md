@@ -136,7 +136,6 @@ This script will not work out of the gate and refers to components we have not y
 import os
 from flask_script import Manager
 from flask_migrate import Migrate, MigrateCommand
-
 from app import app, db
 
 migrate = Migrate(app, db)
@@ -233,4 +232,84 @@ As you can see above in the example, I reference a specific configuration class 
 
 ## Flask App Setup
 
-TODO: Explain how to instantiate `Flask` app + run.  
+
+Up until now, we haven't been able to run our server.  We must write 3 more files in order to do so.  
+
+We have never setup our `Flask` app with it configurations anywhere, so let's do that.  We will be doing so in `./app/__init__.py`.  The file should look like this:
+
+{% highlight python %}
+# Gevent needed for sockets
+from gevent import monkey
+monkey.patch_all()
+
+# Imports
+import os
+from flask import Flask, render_template
+from flask_sqlalchemy import SQLAlchemy
+from flask_socketio import SocketIO
+
+# Configure app
+socketio = SocketIO()
+app = Flask(__name__)
+app.config.from_object(os.environ["APP_SETTINGS"])
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = True
+
+# DB
+db = SQLAlchemy(app)
+
+# Import + Register Blueprints
+# WORKFLOW:
+# from app.blue import blue as blue_print
+# app.register_blueprint(blue_print)
+
+# Initialize app w/SocketIO
+socketio.init_app(app)
+
+# HTTP error handling
+@app.errorhandler(404)
+def not_found(error):
+  return render_template("404.html"), 404
+{% endhighlight %}  
+
+Let's unpack this file piece by piece.  The top initializes `Gevent`, [a coroutine-based Python networking library](http://www.gevent.org/) for `Socket.IO` (a very useful socket library useful in adding real-time sockets to your app).  The next section imports several libraries, initializes our `Flask` app, set our app up with the configurations from the appropriate `config.py` class, creates the `db` connection pool, bootstraps `Socket.IO` to our `Flask` app, and sets the `404` error page that the app should present on not finding a resource.  **NOTE**: the comments regarding registering a "blueprint" will be where we register our sub-modules with our main, parent `Flask` app.  
+
+Since we have involved `Socket.IO` and `Gevent`, you should run the following:
+
+{% highlight bash %}
+pip install flask-socketio gevent
+pip freeze > requirements.txt
+{% endhighlight %}
+
+Now that our actual `Flask` app instance exists, we should create our `404.html` page.  Place it in `./app/templates/404.html`:
+
+{% highlight html %}
+<!DOCTYPE html>
+<html>
+  <head>
+  </head>
+  <body>
+    <h1>404: Resource not found</h1>
+  </body>
+</html>
+{% endhighlight %}
+
+Finally, in order to actually start our server, we need to create a top-level `run.py` script.  This script can be placed at the root of our project:
+
+{% highlight python %}
+from app import app, socketio
+
+if __name__ == "__main__":
+  socketio.run(app, host="0.0.0.0", port=5000)
+  print "Flask app running at http://0.0.0.0:5000"
+{% endhighlight %}
+
+
+Now, at the root of your application, you can run:
+
+{% highlight bash %}
+python run.py
+{% endhighlight %}
+
+Your server is now running!
+
+**NOTE:** If you get issues regarding `APP_SETTINGS` or `DATABASE_URL`, you should ensure your `.env` is setup properly, and you should `cd` out of and back into your project root.  
